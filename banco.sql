@@ -6,9 +6,3 @@ data_recebimento	datetime,
 origem				varchar(300),
 assunto				varchar(500)
 );
-
-drop table email;
-
-select * from email;
-
-truncate email;
