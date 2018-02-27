@@ -34,6 +34,11 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+def get_service():
+   credentials = get_credentials()
+   http = credentials.authorize(httplib2.Http())
+   return discovery.build('gmail', 'v1', http=http)
+
 def main():
     #Parametros do email
     userId = 'me'
@@ -48,13 +53,8 @@ def main():
         'port': '3306'
     }
 
-    print('Autenticando os dados de acesso ao email.')
-    credentials = get_credentials()
-    http = credentials.authorize(httplib2.Http())
-    print('Autenticacao finalizada.')
-
     print('Buscando os e-mails. Parametro de busca: ' + query)
-    service = discovery.build('gmail', 'v1', http=http)
+    service = get_service()
     results = service.users().messages().list(userId=userId, q=query).execute()
     messages = results.get('messages', [])
 
@@ -83,7 +83,7 @@ def main():
             dt = data.split(" -")[0]
             dt = dt.split(" +")[0]
             insert_clause = ("INSERT INTO email (email_id, data_recebimento, origem, assunto) VALUES (%s, %s, %s, %s)")
-            values = (message['id'], dt = datetime.strptime(dt, "%a, %d %b %Y %H:%M:%S"), origem, assunto)
+            values = (message['id'], datetime.strptime(dt, "%a, %d %b %Y %H:%M:%S"), origem, assunto)
 
             cursor.execute(insert_clause, values)
 
